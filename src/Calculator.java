@@ -1,12 +1,42 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 public class Calculator {
     //ventana para la calculadora
     int boardWidth = 360;
     int boardHeight = 540;
 
+    Color customLightGray = new Color(212, 212, 210);
+    Color customDarkGray = new Color(80, 80, 80);
+    Color customBlack = new Color(28, 28, 28);
+    Color customOrange = new Color(255, 149, 0);
+
+    String[] buttonValues = {
+        "AC", "+/-", "%", "÷", 
+        "7", "8", "9", "x", 
+        "4", "5", "6", "-",
+        "1", "2", "3", "+",
+        "0", ".", "√", "="
+    };
+    String[] rightSymbols = {"÷", "x", "-", "+", "="};
+    String[] topSymbols = {"AC", "+/-", "%"};
+
+
     JFrame frame = new JFrame("Calculator");
+    JLabel displayLabel = new JLabel();
+    //Primer display para la calculacion 
+    JPanel displayPanel = new JPanel();
+    //segundo display para los botones
+    JPanel buttonsPanel = new JPanel();
+
+    //A+B, A-B, A/B
+    String A = "0";
+    String operator = null;
+    String B = null;
 
     Calculator(){
         frame.setVisible(true);
@@ -17,6 +47,98 @@ public class Calculator {
         //que se cierre el programa al cerrar la ventana
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+
+        displayLabel.setBackground(customBlack);
+        displayLabel.setForeground(Color.white);
+        displayLabel.setFont(new Font("Arial", Font.PLAIN, 80));
+        displayLabel.setHorizontalAlignment(JLabel.RIGHT);
+        displayLabel.setText("0");
+        displayLabel.setOpaque(true);
+
+        displayPanel.setLayout(new BorderLayout());
+        displayPanel.add(displayLabel);
+        //pone el cero en la parte superior de la ventana
+        //(donde se calculan las cosas)
+        frame.add(displayPanel, BorderLayout.NORTH);
+
+        buttonsPanel.setLayout(new GridLayout(5, 4));
+        buttonsPanel.setBackground(customBlack);
+        frame.add(buttonsPanel);
+
+        for (int i = 0; i < buttonValues.length; i++) {
+            JButton button = new JButton();
+            String buttonValue = buttonValues[i];
+            button.setFont(new Font("Arial", Font.PLAIN, 30));
+            button.setText(buttonValue);
+            button.setFocusable(false);
+            button.setBorder(new LineBorder(customBlack));
+            if (Arrays.asList(topSymbols).contains(buttonValue)) {
+                button.setBackground(customLightGray);
+                button.setForeground(customBlack);
+            }
+            else if (Arrays.asList(rightSymbols).contains(buttonValue)) {
+                button.setBackground(customOrange);
+                button.setForeground(Color.white);
+            }
+            else {
+                button.setBackground(customDarkGray);
+                button.setForeground(Color.white);
+            }
+            buttonsPanel.add(button);
+
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JButton button = (JButton) e.getSource();
+                    String buttonValue = button.getText();
+                    if (Arrays.asList(rightSymbols).contains(buttonValue)) {}
+                    else if (Arrays.asList(topSymbols).contains(buttonValue)) {
+                        if (buttonValue == "AC") {
+                            //limpia todo y devuelve el valor a 0
+                            clearAll();
+                            displayLabel.setText("0");
+                        }
+                        else if (buttonValue == "+/-") {
+                            double numDisplay = Double.parseDouble(displayLabel.getText());
+                            numDisplay *= -1;
+                            displayLabel.setText(removeZeroDecimal(numDisplay));
+                        }
+                        else if (buttonValue == "%") {
+                            double numDisplay = Double.parseDouble(displayLabel.getText());
+                            numDisplay /= 100;
+                            displayLabel.setText(removeZeroDecimal(numDisplay));}
+                    }
+                    else {//digits or .
+                        if (buttonValue == ".") {
+                            if (!displayLabel.getText().contains(buttonValue)) {
+                                displayLabel.setText(displayLabel.getText() + buttonValue);
+                            }
+                        }
+                        else if ("0123456789".contains(buttonValue)) {
+                            if (displayLabel.getText() == "0") {
+                                displayLabel.setText(buttonValue);
+                            }
+                            else {
+                                displayLabel.setText(displayLabel.getText() + buttonValue);
+                            }
+                        }
+                    }
+                }
+                
+            });
+        }
+
     }
 
+    void clearAll() {
+        A = "0";
+        operator = null;
+        B = null;
+    }
+
+    String removeZeroDecimal(double numDisplay) {
+        if (numDisplay %1 == 0) {
+            return Integer.toString((int) numDisplay);
+        }
+        return Double.toString(numDisplay);
+    }
 }
