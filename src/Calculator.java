@@ -91,6 +91,7 @@ public class Calculator {
                     JButton button = (JButton) e.getSource();
                     String buttonValue = button.getText();
                     if (Arrays.asList(rightSymbols).contains(buttonValue)) {
+                        // falta implementar la raiz
                         if (buttonValue == "="){
                             if(A != null) {
                                 B = displayLabel.getText();
